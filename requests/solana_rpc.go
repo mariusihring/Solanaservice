@@ -84,22 +84,31 @@ func GetTokenMetadata(address string) types.GetTokenMetaDataResponse {
 	return response
 }
 
-func GetTransactions(address string) []types.TransactionResult {
+// TODO: there are rate limits wow, find a way about this. is there a different way to get transactions??
+func GetTransactions(address string) []types.TransactionResponse {
 	data := queryRPC("getSignaturesForAddress", []interface{}{address})
 	var response types.GetSignaturesForAddressResponse
 	err := json.Unmarshal([]byte(data), &response)
 	if err != nil {
 		log.Error("Error occured", "Stack", err)
 	}
-	var transactions []types.TransactionResult
+	var transactions []types.TransactionResponse
 	for _, transaction_hash := range response.Result {
-		transaction := queryRPC("getTransaction", []interface{}{transaction_hash.Signature, "json"})
+		transaction := queryRPC("getTransaction", []interface{}{
+			transaction_hash.Signature,
+			map[string]interface{}{
+				"encoding":                       "json",
+				"maxSupportedTransactionVersion": 0,
+			},
+		})
+
 		var transaction_parsed types.TransactionResponse
-		err := json.Unmarshal([]byte(transaction), &transaction_parsed)
+		err = json.Unmarshal([]byte(transaction), &transaction_parsed)
 		if err != nil {
 			log.Error("Error occured", "Stack", err)
 		}
-		transactions = append(transactions, transaction_parsed.Result)
+
+		transactions = append(transactions, transaction_parsed)
 	}
 
 	log.Info("Found Transactions", "wallet", address, "TransactionAmount", len(transactions))

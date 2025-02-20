@@ -3,13 +3,13 @@ package types
 import "time"
 
 type MyWallet struct {
-	Address      string              `json:"address"`
-	SolBalance   float64             `json:"solBalance"`
-	SolValue     float64             `json:"solValue"`
-	Value        float64             `json:"walletValue"`
-	Tokens       []MyToken           `json:"tokens"`
-	Transactions []TransactionResult `json:"transactions"`
-	LastUpdated  time.Time           `json:"last_updated"`
+	Address      string                `json:"address"`
+	SolBalance   float64               `json:"solBalance"`
+	SolValue     float64               `json:"solValue"`
+	Value        float64               `json:"walletValue"`
+	Tokens       []MyToken             `json:"tokens"`
+	Transactions []TransactionResponse `json:"transactions"`
+	LastUpdated  time.Time             `json:"last_updated"`
 }
 
 type MyToken struct {
