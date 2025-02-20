@@ -1,5 +1,10 @@
 package types
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 type GetSignaturesForAddressResponse struct {
 	JsonRPC string                          `json:"jsonrpc"`
 	Result  []WalletTransactionHashResponse `json:"result"`
@@ -198,13 +203,35 @@ type SolanaError struct {
 	Message string `json:"message"`
 }
 
+// Version is a custom type that can handle both string and numeric JSON values
+type Version string
+
+// UnmarshalJSON implements json.Unmarshaler interface
+func (v *Version) UnmarshalJSON(data []byte) error {
+	// Try string first
+	var s string
+	if err := json.Unmarshal(data, &s); err == nil {
+		*v = Version(s)
+		return nil
+	}
+
+	// Try number
+	var n json.Number
+	if err := json.Unmarshal(data, &n); err == nil {
+		*v = Version(n.String())
+		return nil
+	}
+
+	return fmt.Errorf("version must be either string or number")
+}
+
 // Result contains the main result fields.
 type TransactionResult struct {
 	BlockTime   int64       `json:"blockTime"`
 	Meta        Meta        `json:"meta"`
 	Slot        int         `json:"slot"`
 	Transaction Transaction `json:"transaction"`
-	Version     string      `json:"version"`
+	Version     Version     `json:"version"`
 }
 
 // Meta holds metadata about the transaction.
